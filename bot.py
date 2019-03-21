@@ -1,10 +1,15 @@
-import tweepy
+import requests
+from tweepy import API
+from tweepy import OAuthHandler
 import keys as Keys
 
-auth = tweepy.OAuthHandler(Keys.consumer_key, Keys.consumer_secret)
+auth = OAuthHandler(Keys.consumer_key, Keys.consumer_secret)
 auth.set_access_token(Keys.access_token, Keys.access_token_secret)
-api = tweepy.API(auth)
+api = API(auth)
 
-# for follower in tweepy.Cursor(api.followers).items():
-#     follower.follow()
-#     print ("Followed everyone that is following " + user.name)
+mentions = api.mentions_timeline(count=1)
+
+for mention in mentions:
+    print(mention.text)
+    requests.post(Keys.host, json={
+                  "id": "twitter@"+mention.user.id_str, "username": mention.user.screen_name, "campus": mention.text})
