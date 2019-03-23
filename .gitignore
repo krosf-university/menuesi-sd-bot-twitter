@@ -127,5 +127,5 @@ dmypy.json
 .wakatime-project
 keys.py
 *.txt
-
+*.jpg
 # End of https://www.gitignore.io/api/python
