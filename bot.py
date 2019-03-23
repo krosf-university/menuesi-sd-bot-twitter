@@ -1,12 +1,9 @@
 import requests
-from tweepy import API
-from tweepy import OAuthHandler
+import socketserver
+import http.server
+from time import localtime, strftime
 from time import sleep
-import keys as Keys
-
-auth = OAuthHandler(Keys.consumer_key, Keys.consumer_secret)
-auth.set_access_token(Keys.access_token, Keys.access_token_secret)
-api = API(auth)
+from keys import credentials_twitter  # localfile
 
 
 def parser_mention(mention_text):
@@ -26,19 +23,16 @@ def store_id(last_id):
     f_write.close()
 
 
-def suscribe():
-
-    mentions = api.mentions_timeline(last_id())
-
+def image():
+    mentions = credentials_twitter().mentions_timeline(last_id())
     for mention in mentions:
         sleep(5)
         store_id(mention.id)
-        print(mention.text)
         print(parser_mention(mention.text))
-        requests.post(Keys.host, json={
-            "id": "twitter@"+mention.user.id_str, "username": mention.user.screen_name, "campus": parser_mention(mention.text)})
+        requests.post("http://macos.local:8081/image", json={
+            "id": "twitter@"+mention.user.id_str, "url": mention.media.media_url_https, "campus": parser_mention(mention.text), "date": strftime("%d%m%Y", localtime())})
 
 
 while(True):
-    suscribe()
+    image()
     sleep(5)
