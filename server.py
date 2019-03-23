@@ -1,13 +1,13 @@
 import requests
-from bottle import run, post, request
+from bottle import run, post, request, response
 from keys import credentials_twitter  # localfile
-
+from json import dumps
 
 def image_twitter(url, campus):
     requestz = requests.get(url, stream=True)
     if requestz.status_code == 200:
-        filename = url[url.rfind("/")+1:]
-        with open(filename) as image:
+        filename = "file.jpg"
+        with open(filename, 'wb') as image:
             for chunk in requestz:
                 image.write(chunk)
         credentials_twitter().update_with_media(filename, status=campus)
@@ -16,8 +16,10 @@ def image_twitter(url, campus):
 @post('/')
 def index():
     json = request.json
-    image_twitter(json['url'], json['campus'])
-    return "Es Correcto"
+    print(json)
+    image_twitter(json['image'], json['campus'])
+    response.content_type = "application/json"
+    return dumps({"correcto":"true"})
 
 
-run(host="localhost", port=8080)
+run(host="localhost", port=4000)
